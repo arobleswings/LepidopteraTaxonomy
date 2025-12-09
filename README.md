@@ -90,4 +90,4 @@ See the `LICENSE` file for full terms.
 ## Author
 
 **Angela Robles**  
-Environmental Sciences & Entomology Graduate Student
+Environmental Systems Graduate Student
