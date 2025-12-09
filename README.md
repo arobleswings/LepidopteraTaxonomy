@@ -55,3 +55,39 @@ install.packages(c(
   "readxl", "ggplot2", "igraph", "ggraph",
   "treemapify", "dplyr", "tidyr", "plotly", "collapsibleTree"
 ))
+``` 
+## Usage
+
+1. Clone this repository.  
+2. Open `Lepidoptera_Visualizations.Rmd` in RStudio.  
+3. Update the path to your Excel dataset if necessary:
+
+```r
+lep_data <- read_excel("/path/to/LepFamiliesOnly.xlsx")
+```
+
+4. Knit the R Markdown file to generate an HTML document with all visualizations.
+
+
+
+## Notes
+
+- Interactive plots require **HTML output**.  
+- The Excel file must retain the column names: `SUPERFAMILY`, `FAMILY`, `SUBFAMILY`, `Tribe`.  
+- Designed for exploratory visualization of Lepidopteran taxonomic structure.
+
+## License
+
+This project is released under the **MIT License**.  
+See the `LICENSE` file for full terms.
+
+## Still to Do
+
+- Add photographs for families, subfamilies, or tribes  
+- Include diagnostic traits for each taxonomic level  
+- Improve interactivity for network and hierarchical plots
+
+## Author
+
+**Angela Robles**  
+Environmental Sciences & Entomology Graduate Student
