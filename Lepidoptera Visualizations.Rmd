@@ -1,0 +1,137 @@
+---
+title: "Lepidoptera Visualizations"
+output: html_document
+date: "2025-11-04"
+---
+
+```{r setup, include=FALSE}
+# Load the package
+library(readxl)
+
+# Read your Excel file
+lep_data <- read_excel("/Users/angelarobles/Desktop/open sci/LepFamiliesOnly.xlsx")
+
+# View the first few rows
+head(lep_data)
+
+```
+
+
+```{r}
+library(ggplot2)
+ggplot(lep_data, aes(x = SUPERFAMILY)) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Number of Families per Superfamily",
+       x = "Superfamily",
+       y = "Count")
+```
+```{r}
+library(igraph)
+library(ggraph)
+
+# Build edge list
+edges <- lep_data %>%
+  select(SUPERFAMILY, FAMILY, SUBFAMILY, Tribe) %>%
+  tidyr::pivot_longer(cols = everything(), names_to = "Level", values_to = "Name") %>%
+  dplyr::filter(!is.na(Name))
+
+# Create graph
+g <- graph_from_data_frame(
+  d = lep_data %>% select(SUPERFAMILY, FAMILY) %>% distinct(),
+  directed = TRUE
+)
+
+ggraph(g, layout = "tree") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3) +
+  theme_void() +
+  labs(title = "Taxonomic Hierarchy of Lepidoptera Families")
+```
+```{r}
+library(treemapify)
+
+ggplot(lep_data, aes(area = 1, fill = SUPERFAMILY, label = FAMILY)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white", place = "centre", grow = TRUE) +
+  labs(title = "Lepidoptera Families by Superfamily") +
+  theme(legend.position = "none")
+```
+```{r}
+library(igraph)
+library(ggraph)
+
+edges <- lep_data %>%
+  tidyr::pivot_longer(cols = c(SUPERFAMILY, FAMILY, SUBFAMILY, Tribe),
+                      names_to = "Level", values_to = "Taxon") %>%
+  dplyr::mutate(Next = dplyr::lead(Taxon)) %>%
+  dplyr::filter(!is.na(Next)) %>%
+  dplyr::select(From = Taxon, To = Next)
+
+graph <- graph_from_data_frame(edges, directed = TRUE)
+
+ggraph(graph, layout = "fr") +
+  geom_edge_link(alpha = 0.3) +
+  geom_node_point(color = "darkgreen", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 2.5) +
+  theme_void() +
+  labs(title = "Taxonomic Relationships in Lepidoptera")
+```
+```{r}
+library(plotly)
+library(dplyr)
+
+# Count number of families per superfamily
+family_counts <- lep_data %>%
+  count(SUPERFAMILY, name = "Family_Count")
+
+fig <- plot_ly(
+  data = family_counts,
+  x = ~SUPERFAMILY,
+  y = ~Family_Count,
+  type = "bar",
+  text = ~paste("Families:", Family_Count),
+  hoverinfo = "text",
+  marker = list(color = 'steelblue')
+) %>%
+  layout(
+    title = "Number of Families per Superfamily",
+    xaxis = list(title = "Superfamily"),
+    yaxis = list(title = "Family Count")
+  )
+
+fig
+```
+
+
+```{r}
+#install.packages("collapsibleTree")
+library(collapsibleTree)
+
+collapsibleTree(
+  lep_data,
+  hierarchy = c("SUPERFAMILY", "FAMILY", "SUBFAMILY", "Tribe"),
+  root = "Lepidoptera",
+  width = 800,
+  height = 700,
+  zoomable = TRUE
+)
+```
+
+```{r}
+library(plotly)
+
+fig <- plot_ly(
+  lep_data,
+  type = "treemap",
+  labels = ~FAMILY,
+  parents = ~SUPERFAMILY,
+  textinfo = "label+value+percent parent",
+  hoverinfo = "label+text",
+  root = list(color = "red", label = "Lepidoptera")
+)
+
+fig
+```
+
